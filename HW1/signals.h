@@ -8,7 +8,8 @@
 #include <string.h>
 #include <signal.h>
 
-
+void catch_C_int(int sig_num);
+void catch_Z_int(int sig_num);
 
 #endif
 

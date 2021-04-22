@@ -8,14 +8,28 @@ main file. This file contains the main function of smash
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <string>
+#include <iostream>
+#include <ostream>
+#include <list>
 #include "commands.h"
 #include "signals.h"
+
+using namespace std;
+
 #define MAX_LINE_SIZE 80
 #define MAXARGS 20
+#define MAX_HIST 50
 
-char* L_Fg_Cmd;
+// declering functions
+void Cmd_History_Update(string cmdString);
+
 void* jobs = NULL; //This represents the list of jobs. Please change to a preferred type (e.g array of char*)
-char lineSize[MAX_LINE_SIZE]; 
+char lineSize[MAX_LINE_SIZE];
+struct sigaction C_act;
+struct sigaction Z_act;
+list <string> Cmd_History;
+
 //**************************************************************************************
 // function name: main
 // Description: main function of smash. get command from user and calls command functions
@@ -23,40 +37,38 @@ char lineSize[MAX_LINE_SIZE];
 int main(int argc, char *argv[])
 {
     char cmdString[MAX_LINE_SIZE]; 	   
+	Cmd_History.clear();
 
+	// taking care of the ctrl-c and ctrl-z like in recition 2
+	sigset_t mask_c, mask_z;
+	sigfillset(&mask_c);
+	sigfillset(&mask_z);
+
+	C_act.sa_handler = &catch_C_int;
+	C_act.sa_flags = 0;
+	C_act.sa_mask = mask_c;
 	
-	//signal declaretions
-	//NOTE: the signal handlers and the function/s that sets the handler should be found in siganls.c
-	 /* add your code here */
+	Z_act.sa_handler = &catch_Z_int;
+	Z_act.sa_flags = 0;
+	Z_act.sa_mask = mask_z;
+
+	// setting up the handlers and checking if the system call failed
+	if ((sigaction(SIGINT, &C_act, NULL)) || sigaction(SIGTSTP, &Z_act, NULL))
+	{
+		perror("smash");
+		return 1;
+	}
 	
-	/************************************/
-	//NOTE: the signal handlers and the function/s that sets the handler should be found in siganls.c
-	//set your signal handlers here
-	/* add your code here */
-
-	/************************************/
-
-	/************************************/
-	// Init globals 
-
-
-	
-	L_Fg_Cmd =(char*)malloc(sizeof(char)*(MAX_LINE_SIZE+1));
-	if (L_Fg_Cmd == NULL) 
-			exit (-1); 
-	L_Fg_Cmd[0] = '\0';
-	
-    	while (1)
-    	{
+    while (1)
+	{
 	 	printf("smash > ");
 		fgets(lineSize, MAX_LINE_SIZE, stdin);
 		strcpy(cmdString, lineSize);    	
 		cmdString[strlen(lineSize)-1]='\0';
-					// perform a complicated Command
-		if(!ExeComp(lineSize)) continue; 
-					// background command	
+		Cmd_History_Update(cmdString);
+		// background command	
 	 	if(!BgCmd(lineSize, jobs)) continue; 
-					// built in commands
+		// built in commands
 		ExeCmd(jobs, lineSize, cmdString);
 		
 		/* initialize for next line read*/
@@ -66,3 +78,14 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+void Cmd_History_Update(string cmdString)
+{
+	if ((cmdString == "") || (cmdString == "\0"))
+		return;
+	string new_cmd(cmdString);
+	if (Cmd_History.size() == MAX_HIST)
+	{
+		Cmd_History.pop_front();
+	}
+	Cmd_History.push_back(new_cmd);
+}

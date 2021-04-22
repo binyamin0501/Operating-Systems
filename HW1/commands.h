@@ -10,7 +10,7 @@
 #include <sys/wait.h>
 #define MAX_LINE_SIZE 80
 #define MAX_ARG 20
-typedef enum { FALSE , TRUE } bool;
+typedef enum { FALSE , TRUE } Bool;
 int ExeComp(char* lineSize);
 int BgCmd(char* lineSize, void* jobs);
 int ExeCmd(void* jobs, char* lineSize, char* cmdString);
