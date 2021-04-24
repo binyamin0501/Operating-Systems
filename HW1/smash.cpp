@@ -14,12 +14,16 @@ main file. This file contains the main function of smash
 #include <list>
 #include "commands.h"
 #include "signals.h"
+#include "Job.h"
 
 using namespace std;
 
 #define MAX_LINE_SIZE 80
 #define MAXARGS 20
 #define MAX_HIST 50
+
+// import in order to relase memory
+extern char* Prev_Path_name;
 
 // declering functions
 void Cmd_History_Update(string cmdString);
@@ -29,6 +33,8 @@ char lineSize[MAX_LINE_SIZE];
 struct sigaction C_act;
 struct sigaction Z_act;
 list <string> Cmd_History;
+job main_job;
+list <job> Job_List;
 
 //**************************************************************************************
 // function name: main
@@ -38,6 +44,7 @@ int main(int argc, char *argv[])
 {
     char cmdString[MAX_LINE_SIZE]; 	   
 	Cmd_History.clear();
+	Job_List.clear();
 
 	// taking care of the ctrl-c and ctrl-z like in recition 2
 	sigset_t mask_c, mask_z;
@@ -61,6 +68,7 @@ int main(int argc, char *argv[])
 	
     while (1)
 	{
+		main_job.set_pid(-1);
 	 	printf("smash > ");
 		fgets(lineSize, MAX_LINE_SIZE, stdin);
 		strcpy(cmdString, lineSize);    	
@@ -69,12 +77,16 @@ int main(int argc, char *argv[])
 		// background command	
 	 	if(!BgCmd(lineSize, jobs)) continue; 
 		// built in commands
-		ExeCmd(jobs, lineSize, cmdString);
+		ExeCmd(lineSize, cmdString);
 		
 		/* initialize for next line read*/
 		lineSize[0]='\0';
 		cmdString[0]='\0';
 	}
+
+	if (Prev_Path_name != NULL)
+		free(Prev_Path_name);
+
     return 0;
 }
 
