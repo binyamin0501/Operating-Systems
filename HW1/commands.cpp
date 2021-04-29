@@ -16,7 +16,7 @@ using namespace std;
 #define ZERO_ARG 0
 #define ONE_ARG 1
 #define TWO_ARG 2
-#define READ_BUFFER 100
+#define READ_BUFFER 1024
 
 char* Prev_Path_name = NULL;
 
@@ -69,7 +69,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 			Path_name = get_current_dir_name(); 
 			if (Path_name == NULL) //syscall failed
 			{
-				perror("Smash Error");
+				perror("smash error");
 				return FAIL;
 			}
 			cout << Path_name << endl;
@@ -77,7 +77,6 @@ int ExeCmd(char* lineSize, char* cmdString)
 			return SUCCESS;
 		}
 	} 
-	
 	/*************************************************/
 	else if (!strcmp(cmd, "cd")) 
 	{
@@ -97,7 +96,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 				Path_name = get_current_dir_name();
 				if (Path_name == NULL) //syscall failed
 				{
-					perror("Smash Error");
+					perror("smash error");
 					return FAIL;
 				}
 				// change the directory to the old path
@@ -105,9 +104,9 @@ int ExeCmd(char* lineSize, char* cmdString)
 				{
 					int err_check = errno;
 					if (err_check == ENOENT)
-						cout << "smash error: > " <<"\""<< Prev_Path_name <<"\""<< " - path not found" << endl;
+						cout << "smash error: > " <<"\""<< Prev_Path_name <<"\""<< " - No such file or directory" << endl;
 					else
-						perror("Smash Error");
+						perror("smash error");
 					return FAIL;
 				}
 
@@ -124,7 +123,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 				Prev_Path_name = get_current_dir_name();
 				if (Prev_Path_name == NULL) //syscall failed
 				{
-					perror("Smash Error");
+					perror("smash error");
 					return FAIL;
 				}
 				//change the directory to the new path
@@ -132,9 +131,9 @@ int ExeCmd(char* lineSize, char* cmdString)
 				{
 					int err_check = errno;
 					if (err_check == ENOENT)
-						cout << "smash error: > " << args[1] << " - path not found" << endl;
+						cout << "smash error: > " << args[1] << " - No such file or directory" << endl;
 					else
-						perror("Smash Error");
+						perror("smash error");
 					return FAIL;
 				}
 				return SUCCESS;
@@ -142,7 +141,6 @@ int ExeCmd(char* lineSize, char* cmdString)
 		}
 
 	}
-	
 	/*************************************************/
 	else if (!strcmp(cmd, "history"))
 	{
@@ -168,7 +166,6 @@ int ExeCmd(char* lineSize, char* cmdString)
 		}
 	}
 	/*************************************************/
-	
 	else if (!strcmp(cmd, "jobs")) 
 	{
  		// check the num of arguments
@@ -182,16 +179,16 @@ int ExeCmd(char* lineSize, char* cmdString)
 		{
 			// we first remove all the jobs that were done "zombie" state
 			Remove_finished_jobs();
-			int counter,current_time;
+			int counter = 0,current_time = 0;
 			list<job> ::iterator it = Job_List.begin();
 			// go over all the background jobs
 			for (counter = 1; it != Job_List.end(); it++, counter++)
 			{
 				// get the current time
 				current_time = time(NULL);
-				if (current_time == -1) //syscall failed
+				if (current_time == SYS_ERR_VAL) //syscall failed
 				{
-					perror("Smash Error");
+					perror("smash error");
 					return FAIL;
 				}
 				// print each job and the details needed
@@ -204,7 +201,6 @@ int ExeCmd(char* lineSize, char* cmdString)
 			}
 			return SUCCESS;
 		}
-
 	}
 	/*************************************************/
 	else if (!strcmp(cmd, "kill")) 
@@ -265,8 +261,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 						Job_List.erase(it);
 				}
 			}
-		}
-		
+		}	
 	}
 	/*************************************************/
 	else if (!strcmp(cmd, "showpid")) 
@@ -281,7 +276,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 		else
 		{
 			// print the pid of the smash job 
-			// no need to check the system call it is successful all the time
+			// no need to check the system call it is successful all the time :)
 			cout << "smash pid is " << getpid() << endl;
 			return SUCCESS;
 		}
@@ -362,7 +357,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 	else if (!strcmp(cmd, "bg"))
 	{
 		// chcek if there is more then 1 argument
-		if (num_arg > 1)
+		if (num_arg > ONE_ARG)
 		{
 			illegal_cmd = TRUE;
 			error_msg = "\"" + (string)cmdString + "\"";
@@ -482,14 +477,17 @@ int ExeCmd(char* lineSize, char* cmdString)
 			while (it != Job_List.end())
 			{
 				// the job it is dead
+				cout << "[" << job_num << "] " << it->get_cmd_name() << " - Sending SIGTERM... ";
+				fflush(stdout);
 				if (waitpid(it->get_pid(), NULL, WNOHANG) != 0)
 				{
 					it++;
 					job_num++;
+					cout << " Done." << endl;
 					continue;
 				}
 				//job is alive
-				cout << "[" << job_num << "] " << it->get_cmd_name() << " - Sending SIGTERM... ";
+				//cout << "[" << job_num << "] " << it->get_cmd_name() << " - Sending SIGTERM... ";
 
 				kill(it->get_pid(), SIGTERM);
 				sleep(5);
@@ -498,6 +496,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 				if (waitpid(it->get_pid(), NULL, WNOHANG) == 0)
 				{
 					cout << " (5 sec passed) Sending SIGKILL... ";
+					fflush(stdout);
 					kill(it->get_pid(), SIGKILL);
 				}
 				cout << "Done." << endl;
@@ -523,7 +522,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 			int src_fd = open(args[1], O_RDONLY);
 			if (src_fd == SYS_ERR_VAL)
 			{
-				perror("Smash Error");
+				perror("smash error");
 				return FAIL;
 			}
 
@@ -536,7 +535,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 				// delete the file and check system call
 				if(unlink(args[2]) == SYS_ERR_VAL)
 				{
-					perror("Smash Error");
+					perror("smash error");
 					return FAIL;
 				}
 				// now we know the file is deleted and we can create it
@@ -545,7 +544,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 			
 			if (new_fd == SYS_ERR_VAL)
 			{
-				perror("Smash Error");
+				perror("smash error");
 				return FAIL;
 			}
 
@@ -557,14 +556,14 @@ int ExeCmd(char* lineSize, char* cmdString)
 				read_size = read(src_fd, buffer, sizeof(char) * READ_BUFFER);
 				if (read_size == SYS_ERR_VAL)
 				{
-					perror("Smash Error");
+					perror("smash error");
 					return FAIL;
 				}
 
 				write_size = write(new_fd, buffer, sizeof(char)* read_size);
 				if (write_size == SYS_ERR_VAL)
 				{
-					perror("Smash Error");
+					perror("smash error");
 					return FAIL;
 				}
 			}
@@ -572,14 +571,13 @@ int ExeCmd(char* lineSize, char* cmdString)
 			// here we close the files
 			if ((close(src_fd) == SYS_ERR_VAL) || (close(new_fd) == SYS_ERR_VAL))
 			{
-				perror("Smash Error");
+				perror("smash error");
 				return FAIL;
 			}
 
 			cout << args[1] << " has been copied to " << args[2] << endl;
 			return SUCCESS;
 		}
-
 	} 
 	/*************************************************/
 	else if (!strcmp(cmd, "diff"))
@@ -597,7 +595,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 			int file1_fd = open(args[1], O_RDONLY);
 			if (file1_fd == SYS_ERR_VAL)
 			{
-				perror("Smash Error");
+				perror("smash error");
 				return FAIL;
 			}
 
@@ -605,7 +603,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 			int file2_fd = open(args[2], O_RDONLY);
 			if (file2_fd == SYS_ERR_VAL)
 			{
-				perror("Smash Error");
+				perror("smash error");
 				return FAIL;
 			}
 
@@ -618,7 +616,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 				file1_size = read(file1_fd, buffer1, sizeof(char) * READ_BUFFER);
 				if (file1_size == SYS_ERR_VAL)
 				{
-					perror("Smash Error");
+					perror("smash error");
 					return FAIL;
 				}
 				buffer1[file1_size] = '\0';
@@ -626,7 +624,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 				file2_size = read(file2_fd, buffer2, sizeof(char) * READ_BUFFER);
 				if (file2_size == SYS_ERR_VAL)
 				{
-					perror("Smash Error");
+					perror("smash error");
 					return FAIL;
 				}
 				buffer2[file2_size] = '\0';
@@ -648,7 +646,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 			// here we close the files
 			if ((close(file1_fd) == SYS_ERR_VAL) || (close(file2_fd) == SYS_ERR_VAL))
 			{
-				perror("Smash Error");
+				perror("smash error");
 				return FAIL;
 			}
 			cout << is_diff << endl;
@@ -664,7 +662,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 
 	if (illegal_cmd == TRUE)
 	{
-		cout <<"smash Error: > " << error_msg << endl;
+		cout <<"smash error: > " << error_msg << endl;
 		return FAIL;
 	}
     return 0;
@@ -677,11 +675,11 @@ int ExeCmd(char* lineSize, char* cmdString)
 //**************************************************************************************
 void ExeExternal(char *args[MAX_ARG], char* cmdString)
 {
-	int pID;
+	int pID = 0;
     switch(pID = fork()) 
 	{
     	case SYS_ERR_VAL:
-			perror("smash Error");
+			perror("smash error");
 			exit(1);
 		break;
 	
@@ -689,7 +687,7 @@ void ExeExternal(char *args[MAX_ARG], char* cmdString)
     	    // Child Process
     	   	setpgrp();
 			execvp(args[0], args);
-			perror("smash Error");
+			perror("smash error");
 			exit(1);
 		break;
 
@@ -737,14 +735,14 @@ int BgCmd(char* lineSize, void* jobs)
 		{
 		// in case fork failed and no child was created
 		case SYS_ERR_VAL:
-			perror("smash Error");
+			perror("smash error");
 			exit(1);
 			break;
 		// this case is the child
 		case 0:
 			setpgrp();
 			execvp(args[0], args);
-			perror("smash Error");
+			perror("smash error");
 			exit(0);
 			break;
 		// parent

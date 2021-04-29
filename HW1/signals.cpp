@@ -13,7 +13,6 @@ extern job main_job;
 extern list<job> Job_List;
 
 void catch_C_int(int sig_num) {
-   printf("Ctrl + C\n");
    // check that the job is valid and the SIGINT signal was sent
 	if ((main_job.get_pid() == -1) || (sig_num != SIGINT))
 		return;
@@ -26,7 +25,6 @@ void catch_C_int(int sig_num) {
 }
 
 void catch_Z_int(int sig_num) {
-   printf("Ctrl + Z\n");
    // check that the job is valid and the SIGSTP signal was sent
 	if ((main_job.get_pid() == -1) || (sig_num != SIGTSTP)) return;
 	// check if the job still alive
@@ -50,7 +48,7 @@ bool signal_sending_printing(pid_t pid, int signal_number)
 		signal_printing(pid, signal_number);
         return SUCCESS;
     }
-    perror("smash");
+    perror("smash error");
     return FAIL;
 }
 // gets a signal number and return his name
@@ -125,6 +123,6 @@ string SIG_NUM_TO_NAME(int signum) {
 
 void signal_printing(pid_t pid, int signal_number)
 {
-	cout << endl;
+	//cout << endl;
 	cout << "smash > signal " << SIG_NUM_TO_NAME(signal_number) << " was sent to pid " << pid << endl;
 }
