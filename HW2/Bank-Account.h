@@ -2,6 +2,11 @@
 #define BANK_ACCOUNT_H_
 
 #include <semaphore.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define FIRST_READER 1
+#define LAST_READER 0
 
 class Bank_Account {
     int _acc_num;
@@ -35,13 +40,19 @@ public:
     int get_pass() const;
     int get_read_count() const;
 
-    int set_balance();
+    int set_balance(int amount);
 
     void account_write_lock();
-    void accoun_read_lock();
+    void account_read_lock();
     void account_write_unlock();
-    void accoun_read_unlock();
+    void account_read_unlock();
+
+    bool operator<(const Bank_Account& rhs);
 };
 
+void sem_init_check(sem_t* s);
+void sem_destroy_check(sem_t* s);
+void sem_wait_check(sem_t* s);
+void sem_post_check(sem_t* s);
 
 #endif // !BANK_ACCOUNT_H_ 

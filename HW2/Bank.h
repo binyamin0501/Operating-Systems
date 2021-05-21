@@ -17,7 +17,7 @@ using namespace std;
 
 class Bank {
     int _bank_balance;
-    int rd_count;
+    int _read_count;
     sem_t _read_lock;
     sem_t _write_lock;
     map<int, Bank_Account*> _account_list;
@@ -33,6 +33,9 @@ public:
     void bank_read_lock();
     void bank_write_unlock();
     void bank_read_unlock();
+
+    map<int, Bank_Account*>::iterator get_begin();
+    map<int, Bank_Account*>::iterator get_end();
     
 };
 

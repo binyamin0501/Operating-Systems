@@ -1,9 +1,16 @@
 #include "Bank.h"
 
+// this function clear the screen and start writing from the left top corner
+static void print_left_top_corner()
+{
+	printf("\033[2J");
+	printf("\033[1;1H");
+}
+
 Bank::Bank() 
- :_bank_balance(0),rd_count(0) {
+ :_bank_balance(0),_read_count(0) {
         sem_init_check(&_read_lock);
-        sem_init_check(&_write_lock)
+        sem_init_check(&_write_lock);
 }
 
 Bank::~Bank() {
@@ -60,6 +67,14 @@ void Bank::set_bank_balance(int amount) {
     _bank_balance += amount;
 }
 
+map<int, Bank_Account*>::iterator Bank::get_begin() {
+    return _account_list.begin();
+}
+
+map<int, Bank_Account*>::iterator Bank::get_end() {
+    return _account_list.end();
+}
+
 void* Bank_Printing_func(void* is_open) {
     // do while the bank is open
 	while (*((bool*)is_open)) {
@@ -69,8 +84,8 @@ void* Bank_Printing_func(void* is_open) {
         cout << "Current Bank Status" << endl;
         bank->bank_read_lock();
 
-        map<int, Bank_Account*>::iterator it = _account_list.begin();
-        for (; it != _account_list.end(); it++) {
+        map<int, Bank_Account*>::iterator it = bank->get_begin();
+        for (; it != bank->get_end(); it++) {
             it->second->account_read_lock();
             cout << "Account " << it->second->get_account_num() << ": Balance - ";
 	    	cout << it->second->get_balance() << " $ , Account Password - " << it->second->get_pass() << endl;
@@ -95,8 +110,8 @@ void* Charge_Commission_func(void* is_open) {
 
         bank->bank_read_lock();
 
-        map<int, Bank_Account*>::iterator it = _account_list.begin();
-        for (; it != _account_list.end(); it++) {
+        map<int, Bank_Account*>::iterator it = bank->get_begin();
+        for (; it != bank->get_end(); it++) {
             it->second->account_write_lock();
             charge_amount = round(commission_percentage * 0.01 * it->second->get_balance());
             it->second->set_balance(-charge_amount);
@@ -111,11 +126,4 @@ void* Charge_Commission_func(void* is_open) {
         bank->bank_read_unlock();
     }
     pthread_exit(NULL);
-}
-
-// this function clear the screen and start writing from the left top corner
-static void print_left_top_corner()
-{
-	printf("\033[2J");
-	printf("\033[1;1H");
 }

@@ -3,7 +3,7 @@
 Bank_Account::Bank_Account() 
     :_acc_num(0),_pass(0),_balance(0),_read_count(0) {
         sem_init_check(&_read_lock);
-        sem_init_check(&_write_lock)
+        sem_init_check(&_write_lock);
     }
 
 Bank_Account::Bank_Account(int account, int password, int initial_amount) 
@@ -74,9 +74,9 @@ void Bank_Account::account_read_unlock() {
     sem_post_check(&_read_lock);
 }
 
-bool Bank_Account::operator<(const Bank_Account& lhs, const Bank_Account& rhs)
+bool Bank_Account::operator<(const Bank_Account& rhs)
 {
-	if (lhs._acc_num < rhs._acc_num)
+	if (this->_acc_num < rhs._acc_num)
 		return true;
 	return false;
 }
