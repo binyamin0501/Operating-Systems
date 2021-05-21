@@ -10,8 +10,9 @@ using namespace std;
 class Log_File
 {
     pthread_mutex_t _log_mutex;
-
 public:
+    ofstream _log;
+
     Log_File() {
         _log.open("log.txt");
         if (pthread_mutex_init(&_log_mutex, NULL)) {
@@ -41,8 +42,6 @@ public:
 			exit(1);
         }
     }
-
-    ofstream _log;
 };
 
 

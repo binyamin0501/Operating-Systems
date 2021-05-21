@@ -42,6 +42,7 @@ public:
 void* Bank_Printing_func(void* is_open);
 void* Charge_Commission_func(void* is_open);
 
+// meybe use singelton ?
 extern Bank* bank;
 extern Log_File* Bank_Log;
 extern bool is_open;

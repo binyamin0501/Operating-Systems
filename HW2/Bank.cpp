@@ -1,6 +1,6 @@
 #include "Bank.h"
 
-// this function clear the screen and start writing from the left top corner
+// this function clear the screen and start writing from the top left corner
 static void print_left_top_corner()
 {
 	printf("\033[2J");
@@ -41,6 +41,7 @@ void Bank::bank_read_lock() {
     // unlock the read option so other's may also access the information
     sem_post_check(&_read_lock);
 }
+
 void Bank::bank_write_unlock() {
     sem_post_check(&_write_lock);
 }
