@@ -29,10 +29,7 @@ void* ATM_thread_func (void* atm) {
 		cerr << "input file cannot be opened" << endl;
 		exit(ERROR);
 	}
-
-    // char* cmd = NULL, *Operation = NULL, *token = NULL; 
-	// char* delimiters = (char*)" "; 
-	// int i = 0;
+    
     char *Operation = NULL;
 	int args[MAX_ARG];
 	string line ;
@@ -42,16 +39,6 @@ void* ATM_thread_func (void* atm) {
             continue;
         }
         Parse_atm_line(Operation, args, line);
-        // cmd = new char[strlen(line.c_str()) + 1];
-        // strcpy(cmd,line.c_str());
-        // Operation = strtok(cmd, delimiters);
-	    // token = strtok(NULL, delimiters);
-        // i = 0;
-        // while (token) {
-        //     args[i] = atoi(token);
-        //     token = strtok(NULL, delimiters);
-        //     i++;
-        // }
 
         switch (*Operation)
         {
