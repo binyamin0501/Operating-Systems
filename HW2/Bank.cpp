@@ -76,6 +76,20 @@ map<int, Bank_Account*>::iterator Bank::get_end() {
     return _account_list.end();
 }
 
+void Bank::add_new_account(int account, Bank_Account *new_acc) {
+    _account_list[account] = new_acc;
+}
+
+Bank_Account& Bank::get_account(int account) const {
+    return _account_list[account];
+}
+
+void Bank::delete_account(int account) {
+    map<int, Bank_Account*>::iterator it = _account_list.find(account);
+    delete it->second;
+    _account_list.erase(it);
+}
+
 void* Bank_Printing_func(void* is_open) {
     // do while the bank is open
 	while (*((bool*)is_open)) {

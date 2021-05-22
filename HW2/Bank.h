@@ -34,15 +34,20 @@ public:
     void bank_write_unlock();
     void bank_read_unlock();
 
+    void add_new_account(int account, Bank_Account *new_acc);
+
     map<int, Bank_Account*>::iterator get_begin();
     map<int, Bank_Account*>::iterator get_end();
+
+    Bank_Account& get_account(int account) const;
+    void delete_account(int account);
     
 };
 
 void* Bank_Printing_func(void* is_open);
 void* Charge_Commission_func(void* is_open);
 
-// meybe use singelton ?
+//FIXME meybe use singelton ?
 extern Bank* bank;
 extern Log_File* Bank_Log;
 extern bool is_open;
