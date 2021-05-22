@@ -31,15 +31,17 @@ public:
     void set_atm_num(int atm_num);
     void set_atm_input(const char* input);
 
-    void* ATM_thread_func (void* ATM_input_file);
     void Open_new_account(int account, int password, int initial_amount);
     void Deposit(int account, int password, int amount);
     void Withdraw(int account, int password, int amount);
     void get_account_balance(int account, int password);
     void Close_account(int account, int password);
     void Transaction(int account, int password, int target_account, int amount);
+
+    friend void* ATM_thread_func (void* ATM_input_file);
 };
 
+void* ATM_thread_func (void* ATM_input_file);
 void Parse_atm_line(char* Operation, int args[MAX_ARG], string line);
 
 //*******************************************************************

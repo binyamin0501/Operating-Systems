@@ -80,8 +80,8 @@ void Bank::add_new_account(int account, Bank_Account *new_acc) {
     _account_list[account] = new_acc;
 }
 
-Bank_Account& Bank::get_account(int account) const {
-    return _account_list[account];
+Bank_Account& Bank::get_account(int account) {
+    return *_account_list[account];
 }
 
 void Bank::delete_account(int account) {

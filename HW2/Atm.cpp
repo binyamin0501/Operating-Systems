@@ -20,7 +20,7 @@ void Atm::set_atm_input(const char* input) {
     _atm_input = string(input);
 }
 
-void* Atm::ATM_thread_func (void* atm) {
+void* ATM_thread_func (void* atm) {
     Atm *curr_atm = (Atm*)atm;
     ifstream input_file(curr_atm->get_atm_input().c_str());
     // check if the file is alredy open
@@ -111,9 +111,9 @@ void Atm::Deposit(int account, int password, int amount) {
     sleep(ACTION_SLEEP);
     // check if the account does not exist
     if(!Check_account_exist(account)) {
-        log_file->lock_file();
-		log_file->file << "Error " << this->atm_num << ": Your transaction failed - account id "<< account <<" does not exists" << endl;
-		log_file->unlock_file();
+        Bank_Log->lock_log_file();
+		Bank_Log->_log << "Error " << this->_atm_num << ": Your transaction failed - account id "<< account <<" does not exists" << endl;
+		Bank_Log->unlock_log_gile();
     }
     //account exist
     //check if the password provided is correct
@@ -123,19 +123,19 @@ void Atm::Deposit(int account, int password, int amount) {
             Bank_Account &curr = bank->get_account(account);
             curr.account_write_lock();
             curr.set_balance(amount);
-            log_file->lock_file();
-		    log_file->file << this->atm_num << ": Account " << account << " new balance is "
+            Bank_Log->lock_log_file();
+		    Bank_Log->_log << this->_atm_num << ": Account " << account << " new balance is "
             << curr.get_balance() << " after " << amount <<" $ was deposited " << endl;
-		    log_file->unlock_file();
+		    Bank_Log->unlock_log_gile();
             curr.account_write_unlock();
         }
 
         else {
             //password does not match
-            log_file->lock_file();
-		    log_file->file << "Error " << this->atm_num << ": Your transaction failed - password for account id "
+            Bank_Log->lock_log_file();
+		    Bank_Log->_log << "Error " << this->_atm_num << ": Your transaction failed - password for account id "
             << account <<" is incorrect" << endl;
-		    log_file->unlock_file();
+		    Bank_Log->unlock_log_gile();
         }
     }
     bank->bank_read_unlock();
@@ -146,9 +146,9 @@ void Atm::Withdraw(int account, int password, int amount) {
     sleep(ACTION_SLEEP);
     // check if the account does not exist
     if(!Check_account_exist(account)) {
-        log_file->lock_file();
-		log_file->file << "Error " << this->atm_num << ": Your transaction failed - account id "<< account <<" does not exists" << endl;
-		log_file->unlock_file();
+        Bank_Log->lock_log_file();
+		Bank_Log->_log << "Error " << this->_atm_num << ": Your transaction failed - account id "<< account <<" does not exists" << endl;
+		Bank_Log->unlock_log_gile();
     }
 
     //account exist
@@ -159,21 +159,21 @@ void Atm::Withdraw(int account, int password, int amount) {
             Bank_Account &curr = bank->get_account(account);
             curr.account_write_lock();
             //check if the account balance is grater then the amount asked to withdraw
-            if (curr.get_balance() => amount) {
+            if (curr.get_balance() >= amount) {
                 // the balance is sufficient
                 curr.set_balance(-amount);
-                log_file->lock_file();
-		        log_file->file << this->atm_num << ": Account " << account << " new balance is "
+                Bank_Log->lock_log_file();
+		        Bank_Log->_log << this->_atm_num << ": Account " << account << " new balance is "
                 << curr.get_balance() << " after " << amount <<" $ was withdrew " << endl;
-		        log_file->unlock_file();
+		        Bank_Log->unlock_log_gile();
             }
 
             else {
                 // amount requested to withdraw is grater then account balance
-                log_file->lock_file();
-		        log_file->file << "Error " << this->atm_num << ": Your transaction failed - account id "
+                Bank_Log->lock_log_file();
+		        Bank_Log->_log << "Error " << this->_atm_num << ": Your transaction failed - account id "
                 << account <<" balance is lower than " << amount << endl;
-		        log_file->unlock_file();
+		        Bank_Log->unlock_log_gile();
             }
 
             curr.account_write_unlock();
@@ -181,10 +181,10 @@ void Atm::Withdraw(int account, int password, int amount) {
 
         else {
             //password does not match
-            log_file->lock_file();
-		    log_file->file << "Error " << this->atm_num << ": Your transaction failed - password for account id "
+            Bank_Log->lock_log_file();
+		    Bank_Log->_log << "Error " << this->_atm_num << ": Your transaction failed - password for account id "
             << account <<" is incorrect" << endl;
-		    log_file->unlock_file();
+		    Bank_Log->unlock_log_gile();
         }
     }
     bank->bank_read_unlock();
@@ -196,9 +196,9 @@ void Atm::get_account_balance(int account, int password) {
     sleep(ACTION_SLEEP);
     // check if the account does not exist
     if(!Check_account_exist(account)) {
-        log_file->lock_file();
-		log_file->file << "Error " << this->atm_num << ": Your transaction failed - account id "<< account <<" does not exists" << endl;
-		log_file->unlock_file();
+        Bank_Log->lock_log_file();
+		Bank_Log->_log << "Error " << this->_atm_num << ": Your transaction failed - account id "<< account <<" does not exists" << endl;
+		Bank_Log->unlock_log_gile();
     }
     //account exist
     //check if the password provided is correct
@@ -207,18 +207,18 @@ void Atm::get_account_balance(int account, int password) {
             //password match
             Bank_Account &curr = bank->get_account(account);
             curr.account_write_lock();
-            log_file->lock_file();
-		    log_file->file << this->atm_num << ": Account " << account << "balance is " << curr.get_balance() << endl;
-		    log_file->unlock_file();
+            Bank_Log->lock_log_file();
+		    Bank_Log->_log << this->_atm_num << ": Account " << account << "balance is " << curr.get_balance() << endl;
+		    Bank_Log->unlock_log_gile();
             curr.account_write_unlock();
         }
 
         else {
             //password does not match
-            log_file->lock_file();
-		    log_file->file << "Error " << this->atm_num << ": Your transaction failed - password for account id "
+            Bank_Log->lock_log_file();
+		    Bank_Log->_log << "Error " << this->_atm_num << ": Your transaction failed - password for account id "
             << account <<" is incorrect" << endl;
-		    log_file->unlock_file();
+		    Bank_Log->unlock_log_gile();
         }
     }
     bank->bank_read_unlock();
@@ -229,9 +229,9 @@ void Atm::Close_account(int account, int password) {
     sleep(ACTION_SLEEP);
     // check if the account does not exist
     if(!Check_account_exist(account)) {
-        log_file->lock_file();
-		log_file->file << "Error " << this->atm_num << ": Your transaction failed - account id "<< account <<" does not exists" << endl;
-		log_file->unlock_file();
+        Bank_Log->lock_log_file();
+		Bank_Log->_log << "Error " << this->_atm_num << ": Your transaction failed - account id "<< account <<" does not exists" << endl;
+		Bank_Log->unlock_log_gile();
     }
     //account exist
     //check if the password provided is correct
@@ -242,18 +242,18 @@ void Atm::Close_account(int account, int password) {
             //FIXME what happens when i delete this account sempahore ?
             // meybe hold the write semaphore ?
             curr.account_read_lock();
-            log_file->lock_file();
-		    log_file->file << this->atm_num << ": Account " << account << "is now closed. Balance was " << curr.get_balance() << endl;
-		    log_file->unlock_file();
+            Bank_Log->lock_log_file();
+		    Bank_Log->_log << this->_atm_num << ": Account " << account << "is now closed. Balance was " << curr.get_balance() << endl;
+		    Bank_Log->unlock_log_gile();
             bank->delete_account(account);
         }
 
         else {
             //password does not match
-            log_file->lock_file();
-		    log_file->file << "Error " << this->atm_num << ": Your transaction failed - password for account id "
+            Bank_Log->lock_log_file();
+		    Bank_Log->_log << "Error " << this->_atm_num << ": Your transaction failed - password for account id "
             << account <<" is incorrect" << endl;
-		    log_file->unlock_file();
+		    Bank_Log->unlock_log_gile();
         }
     }
     bank->bank_write_unlock();
@@ -264,9 +264,9 @@ void Atm::Transaction(int account, int password, int target_account, int amount)
     sleep(ACTION_SLEEP);
     // check if the account does not exist
     if(!Check_account_exist(account) || !Check_account_exist(target_account)) {
-        log_file->lock_file();
-		log_file->file << "Error " << this->atm_num << ": Your transaction failed - account id "<< account <<" does not exists" << endl;
-		log_file->unlock_file();
+        Bank_Log->lock_log_file();
+		Bank_Log->_log << "Error " << this->_atm_num << ": Your transaction failed - account id "<< account <<" does not exists" << endl;
+		Bank_Log->unlock_log_gile();
     }
 
     //account exist
@@ -295,25 +295,25 @@ void Atm::Transaction(int account, int password, int target_account, int amount)
             }
 
             //check if the account balance is grater then the amount asked to transfer
-            if (from.get_balance() => amount) {
+            if (from.get_balance() >= amount) {
                 // the balance is sufficient
                 from.set_balance(-amount);
                 to.set_balance(amount);
-                log_file->lock_file();
-		        log_file->file << this->atm_num << ": Transfer " << amount << " from account "<< account << " to account "  
+                Bank_Log->lock_log_file();
+		        Bank_Log->_log << this->_atm_num << ": Transfer " << amount << " from account "<< account << " to account "  
                 << target_account << " new account balance is "<< from.get_balance() << " new target account balance is " << to.get_balance()<< endl;
-		        log_file->unlock_file();
+		        Bank_Log->unlock_log_gile();
 
             }
 
             else {
                 // amount requested to withdraw is grater then account balance
-                log_file->lock_file();
-		        log_file->file << "Error " << this->atm_num << ": Your transaction failed - account id "
+                Bank_Log->lock_log_file();
+		        Bank_Log->_log << "Error " << this->_atm_num << ": Your transaction failed - account id "
                 << account <<" balance is lower than " << amount << endl;
-		        log_file->unlock_file();
+		        Bank_Log->unlock_log_gile();
             }
-            
+
             // unlock the accounts - the order does'nt matter
             from.account_write_unlock();
             to.account_write_unlock();
@@ -321,10 +321,10 @@ void Atm::Transaction(int account, int password, int target_account, int amount)
 
         else {
             //password does not match
-            log_file->lock_file();
-		    log_file->file << "Error " << this->atm_num << ": Your transaction failed - password for account id "
+            Bank_Log->lock_log_file();
+		    Bank_Log->_log << "Error " << this->_atm_num << ": Your transaction failed - password for account id "
             << account <<" is incorrect" << endl;
-		    log_file->unlock_file();
+		    Bank_Log->unlock_log_gile();
         }
     }
     bank->bank_read_unlock();
