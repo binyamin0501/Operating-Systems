@@ -30,7 +30,7 @@ void* ATM_thread_func (void* atm) {
 		exit(ERROR);
 	}
     
-    char *Operation = NULL;
+    char Operation;
 	int args[MAX_ARG];
 	string line ;
 
@@ -38,11 +38,13 @@ void* ATM_thread_func (void* atm) {
         if (!line.length()) {
             continue;
         }
-        Parse_atm_line(Operation, args, line);
+        
+        Parse_atm_line(&Operation, args, line);
 
-        switch (*Operation)
+        switch (Operation)
         {
         case 'O':
+            
             curr_atm->Open_new_account(args[0], args[1], args[2]);
             break;
         case 'D':
@@ -54,7 +56,7 @@ void* ATM_thread_func (void* atm) {
         case 'B':
             curr_atm->get_account_balance(args[0], args[1]);
             break;
-        case 'C':
+        case 'Q':
             curr_atm->Close_account(args[0], args[1]);
             break;
         case 'T':
@@ -65,7 +67,7 @@ void* ATM_thread_func (void* atm) {
             exit(ERROR);
             break;
         }
-
+        
         usleep(ATM_SLEEP);
     }
     pthread_exit(NULL);
@@ -320,15 +322,18 @@ void Atm::Transaction(int account, int password, int target_account, int amount)
 
 void Parse_atm_line(char* Operation, int args[MAX_ARG], string line) {
     char* cmd = NULL, *token = NULL; 
-	char* delimiters = (char*)" "; 
+	const char* delimiters = (char*)" "; 
 	int i = 0;
+
     cmd = new char[strlen(line.c_str()) + 1];
     strcpy(cmd,line.c_str());
-    Operation = strtok(cmd, delimiters);
-	token = strtok(NULL, delimiters);
+    
+    *Operation = *strtok(cmd, " ");
+
+	token = strtok(NULL, " ");
     while (token) {
         args[i] = atoi(token);
-        token = strtok(NULL, delimiters);
+        token = strtok(NULL, " ");
         i++;
     }
     delete[] cmd;
