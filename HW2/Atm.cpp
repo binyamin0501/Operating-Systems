@@ -197,7 +197,7 @@ void Atm::get_account_balance(int account, int password) {
             Bank_Account &curr = bank->get_account(account);
             curr.account_write_lock();
             Bank_Log->lock_log_file();
-		    Bank_Log->_log << this->_atm_num << ": Account " << account << "balance is " << curr.get_balance() << endl;
+		    Bank_Log->_log << this->_atm_num << ": Account " << account << " balance is " << curr.get_balance() << endl;
 		    Bank_Log->unlock_log_gile();
             curr.account_write_unlock();
         }
@@ -232,7 +232,7 @@ void Atm::Close_account(int account, int password) {
             // meybe hold the write semaphore ?
             curr.account_read_lock();
             Bank_Log->lock_log_file();
-		    Bank_Log->_log << this->_atm_num << ": Account " << account << "is now closed. Balance was " << curr.get_balance() << endl;
+		    Bank_Log->_log << this->_atm_num << ": Account " << account << " is now closed. Balance was " << curr.get_balance() << endl;
 		    Bank_Log->unlock_log_gile();
             bank->delete_account(account);
         }
