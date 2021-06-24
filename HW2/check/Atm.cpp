@@ -87,7 +87,7 @@ void Atm::Open_new_account(int account, int password, int initial_amount) {
         Bank_Account *new_acc = new Bank_Account(account, password, initial_amount);
         bank->add_new_account(account, new_acc);
         Bank_Log->lock_log_file();
-        Bank_Log->_log << this->_atm_num << ": New account id is " << account << " with password "
+        Bank_Log->_log << this->_atm_num << ": New account id is " << account << "  with password  "
         << password << " and initial balance " << initial_amount << endl;
         Bank_Log->unlock_log_gile();
     }
@@ -250,17 +250,10 @@ void Atm::Close_account(int account, int password) {
 void Atm::Transaction(int account, int password, int target_account, int amount) {
     bank->bank_read_lock();
     sleep(ACTION_SLEEP);
-    // check if the src account does not exist
-    if(!Check_account_exist(account)) {
+    // check if the account does not exist
+    if(!Check_account_exist(account) || !Check_account_exist(target_account)) {
         Bank_Log->lock_log_file();
 		Bank_Log->_log << "Error " << this->_atm_num << ": Your transaction failed - account id "<< account <<" does not exists" << endl;
-		Bank_Log->unlock_log_gile();
-    }
-
-    // check if the target account does not exist
-    else if(!Check_account_exist(target_account)) {
-        Bank_Log->lock_log_file();
-		Bank_Log->_log << "Error " << this->_atm_num << ": Your transaction failed - account id "<< target_account <<" does not exists" << endl;
 		Bank_Log->unlock_log_gile();
     }
 

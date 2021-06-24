@@ -91,12 +91,19 @@ def generate_test():
     cmd_fd.close()
     return cmd_string, dir_path
     #STOPPED THERE
-
-for i in range(10):
-    cmd, dest = generate_test()
-    os.system(cmd)
     
-    here = os.path.dirname(os.path.realpath(__file__))
-    log_file = "log.txt"
-    src = here + "/" + log_file
-    shutil.copy(src, dest)
+if __name__ == "__main__":
+    for i in range(3):
+        cmd, dest = generate_test()
+        print(cmd)
+        valgrind = "valgrind --leak-check=full "
+        dev_out = " > /dev/null"
+        val_cmd = valgrind + cmd + dev_out
+        
+        # os.system(val_cmd)
+        os.system(cmd)
+        
+        # here = os.path.dirname(os.path.realpath(__file__))
+        # log_file = "log.txt"
+        # src = here + "/" + log_file
+        # shutil.copy(src, dest)

@@ -7,12 +7,12 @@ RM = rm -f
 TARGET = ttftps
 
 # Creating the  executable
-($TARGET): $(OBJS)
+$(TARGET): $(OBJS)
 	$(CCLINK) $(CFLAGS) -o ttftps $(OBJS)
 
 # Creating the object files
-ttftps.o: ttftps.cPP ttftps.h
+ttftps.o: ttftps.cpp ttftps.h
 
 # Cleaning old files before new make
 clean:
-	$(RM) ($TARGET) *.o *~ "#"* core.*
+	$(RM) $(TARGET) *.o *~ "#"* core.*

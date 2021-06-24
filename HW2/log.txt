@@ -1,0 +1,17 @@
+0: New account id is 12345 with password 1234 and initial balance 100
+Error 0: Your transaction failed - password for account id 12345 is incorrect
+Bank: commissions of 3 % were charged, the bank gained 3 $ from account 12345
+Error 0: Your transaction failed - password for account id 12345 is incorrect
+Error 0: Your transaction failed - account id 12345 balance is lower than 500
+Error 0: Your transaction failed - password for account id 12345 is incorrect
+Error 0: Your transaction failed - password for account id 12345 is incorrect
+Bank: commissions of 3 % were charged, the bank gained 3 $ from account 12345
+Error 0: Your transaction failed - account id 12346 does not exists
+Error 0: Your transaction failed - account id 12346 does not exists
+0: New account id is 12346 with password 1234 and initial balance 100
+Bank: commissions of 2 % were charged, the bank gained 2 $ from account 12345
+Bank: commissions of 2 % were charged, the bank gained 2 $ from account 12346
+Error 0: Your transaction failed - password for account id 12345 is incorrect
+Error 0: Your transaction failed - account id 12345 balance is lower than 500
+Bank: commissions of 3 % were charged, the bank gained 3 $ from account 12345
+Bank: commissions of 3 % were charged, the bank gained 3 $ from account 12346
