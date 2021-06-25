@@ -1,18 +1,17 @@
 # Makefile for the ttftps program
-CC = g++
-CFLAGS = -g -std=c++11 -Wall -Werror -pedantic-errors -DNDEBUG
+CC = gcc
+CFLAGS = -g -Wall -std=c99 -Werror -pedantic-errors -DNDEBUG 
 CCLINK = $(CC)
 OBJS =  ttftps.o
+LFLAGS = -g 
 RM = rm -f
-TARGET = ttftps
-
 # Creating the  executable
-$(TARGET): $(OBJS)
-	$(CCLINK) $(CFLAGS) -o ttftps $(OBJS)
-
+ttftps: $(OBJS)
+	$(CCLINK) -o ttftps $(OBJS)
 # Creating the object files
-ttftps.o: ttftps.cpp ttftps.h
+
+ttftps.o: ttftps.c ttftps.h
 
 # Cleaning old files before new make
 clean:
-	$(RM) $(TARGET) *.o *~ "#"* core.*
+	$(RM) ttftps *.o *~ "#"* core.*
